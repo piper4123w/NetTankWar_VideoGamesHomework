@@ -36,9 +36,10 @@ public class NetTankWar extends Application {
 	GraphicsContext gc; // declare here to use in handlers
 
 	Thread anim = null; // animation thread
-
+	
 	public static ArrayList<Rock> rocks; // obstacles on the field
 	public static ArrayList<Tank> tanks;
+	public static ArrayList<Ball> opponentBullets;
 	public static final int RED = 0;
 	public static final int BLUE = 1;
 
@@ -94,6 +95,15 @@ public class NetTankWar extends Application {
 		if (!roundOver) { // Freeze the action between rounds
 			tanks.get(playerID).update(true);
 			tanks.get(1 - playerID).update(false);
+
+			for (Tank t : tanks) {
+				for (int i = 0; i < t.bullets.length; i++) {
+					if (t.bullets[i].isAlive()) {
+						send("Bullet:" + i + "=" + t.bullets[i].locX + "," + t.bullets[i].locY);
+
+					}
+				}
+			}
 		}
 	}
 
@@ -337,324 +347,11 @@ public class NetTankWar extends Application {
 	 * ... End boiler-plate code
 	 */
 
-}
-
-interface Ball {
-	// Description of common features for Rock, Tank, and Bullet
-	// Useful for NetTankWar.hitAnItem()
-	double getX();
-
-	double getY();
-
-	double getRadius();
-
-	boolean isAlive();
-}
-
-class Rock implements Ball {
-	// Obstacles scattered about the play field.
-	// Create a random generator to use for rock sizes and
-	// placement
-	public static Random rockGen = new Random();
-
-	int locX, locY, diameter, radius; // int properties easier to
-	boolean alive = true; // send over network
-
-	public Rock(int x, int y, int minD, int maxD) {
-		locX = x;
-		locY = y;
-		diameter = minD + rockGen.nextInt(maxD - minD + 1);
-		radius = diameter / 2;
-	}
-
-	public Rock(int x, int y, int d) {
-		locX = x;
-		locY = y;
-		diameter = d;
-		radius = diameter / 2;
-	}
-
-	void demolish() {
-		// "Turn off" this rock - won't paint or be hit
-		alive = false;
-	}
-
-	public boolean isAlive() {
-		return alive;
-	}
-
-	public double getX() {
-		return (double) locX;
-	}
-
-	public double getY() {
-		return (double) locY;
-	}
-
-	public double getRadius() {
-		return (double) radius;
-	}
-
-	public int getIntX() {
-		return locX;
-	}
-
-	public int getIntY() {
-		return locY;
-	}
-
-	public int getDiameter() {
-		return diameter;
-	}
-
-	void render(GraphicsContext gc) {
-		if (alive) {
-			gc.setFill(Color.GRAY);
-			gc.fillOval(locX - radius, locY - radius, diameter, diameter);
-		}
-	}
-}
-
-class Tank implements Ball {
-
-	double locX, locY, radius, angle;
-	int self; // index of this tank in NetTankWar.tanks
-	public boolean turnL, turnR, forth, back, fire;
-	boolean prevtL, prevtR, prevfo;
-	Color color;
-	Image image;
-
-	public static final double turnRate = 180.0 / 8;
-	public static final double speed = 4.0;
-	public static final int RELOAD = 8; // delay between bullets
-	int count; // timer for reloading
-
-	public static final int MAXBULLETS = 7; // max simultaneous shots
-	Bullet bullets[] = new Bullet[MAXBULLETS];
-
-	public Tank(double x, double y, double a, int index, Image im) {
-		locX = x;
-		locY = y;
-		angle = a;
-		self = index;
-		image = im;
-		radius = 22;
-		// create bullets for this tank
-		for (int i = 0; i < bullets.length; i++)
-			bullets[i] = new Bullet(self);
-	}
-
-	public double getX() {
-		return locX;
-	}
-
-	public double getY() {
-		return locY;
-	}
-
-	public double getRadius() {
-		return radius;
-	}
-
-	public boolean isAlive() {
-		return true;
-	}
-
-	void update(Boolean local) {
-		if (turnL)
-			turnLeft(turnRate);
-		if (turnR)
-			turnRight(turnRate);
-		if (forth) {
-			moveForward();
-			// Check for rocks
-			if (NetTankWar.hitAnItem(this, NetTankWar.rocks) >= 0)
-				backUp();
-		}
-		if (local) {
-			if (turnL != prevtL) {
-				NetTankWar.send("turnL " + turnL + " " + locX + " " + locY + " " + angle);
-				prevtL = turnL;
-			}
-			if (turnR != prevtR) {
-				NetTankWar.send("turnR " + turnR + " " + locX + " " + locY + " " + angle);
-				prevtR = turnR;
-			}
-			if (forth != prevfo) {
-				NetTankWar.send("forth " + forth + " " + locX + " " + locY + " " + angle);
-				prevfo = forth;
-			}
-		}
-		if (fire) {
-			fireBullet();
-		}
-		// Update all of our bullets
-		for (Bullet b : bullets)
-			b.update();
-	}
-
-	public void processMove(String s) {
-		// Update movement parameters based on s
-		Scanner sc = new Scanner(s);
-		// Get the flag change
-		String command = sc.next();
-		boolean value = sc.nextBoolean();
-		if (command.equals("turnL"))
-			turnL = value;
-		else if (command.equals("turnR"))
-			turnR = value;
-		else if (command.equals("forth"))
-			forth = value;
-		else
-			System.out.println("Unexpected move: " + command);
-		// then unpack position update
-		locX = sc.nextDouble();
-		locY = sc.nextDouble();
-		angle = sc.nextDouble();
-	}
-
-	void render(GraphicsContext gc) {
-		// Use the affine transform
-		// to easily rotate the tank's image.
-		gc.save();
-		Affine trans = new Affine();
-		trans.appendTranslation(locX, locY);
-		trans.appendRotation(angle);
-		// draw the image using the specified transform
-		gc.setTransform(trans);
-		gc.drawImage(image, -radius, -radius);
-		// Reset the transform (this is important)
-		gc.restore();
-		// Then draw bullets
-		for (Bullet b : bullets)
-			b.render(gc);
+	public void setOpponentsBullets(String line) {
+		System.out.println(line);
+		int index = Integer.parseInt(line.substring(line.indexOf(':'), line.indexOf('=')));
+		System.out.println("BulletIndex = " + index);
 
 	}
 
-	void fireBullet() {
-		// If it has been long enough since the last shot...
-		count--;
-		if (count > 0)
-			return;
-		// ...and if all the bullets aren't currently in use...
-		int slot = getAvailableBullet();
-		if (slot < 0)
-			return;
-		// ...then launch a new bullet
-		bullets[slot].setLocation(locX, locY);
-		bullets[slot].setDirection(angle);
-		bullets[slot].reset();
-		// Reset the timer
-		count = RELOAD;
-	}
-
-	int getAvailableBullet() {
-		for (int i = 0; i < bullets.length; i++)
-			if (!bullets[i].isAlive())
-				return i;
-		return -1;
-	}
-
-	void turnRight(double a) {
-		angle += a;
-		if (angle > 360)
-			angle -= 360;
-	}
-
-	void turnLeft(double a) {
-		angle -= a;
-		if (angle < 0.0)
-			angle += 360;
-	}
-
-	void moveForward() {
-		locX += speed * Math.cos(Math.PI * angle / 180);
-		locY += speed * Math.sin(Math.PI * angle / 180);
-	}
-
-	void backUp() {
-		locX -= speed * Math.cos(Math.PI * angle / 180);
-		locY -= speed * Math.sin(Math.PI * angle / 180);
-	}
-
-}
-
-class Bullet implements Ball {
-	double locX, locY, dx, dy;
-	int tank; // index of tank that fired this bullet
-	boolean alive = false;
-	int ttl; // time to live
-	public static final int LIFETIME = 70;
-	public static final double SPEED = 8.0;
-	public static final int radius = 7;
-
-	public Bullet(int t) {
-		tank = t;
-	}
-
-	void update() {
-		int i;
-		// Check if this bullet is worn out
-		ttl--;
-		if (ttl < 0)
-			alive = false;
-		if (!alive)
-			return;
-		// If not worn out, update position
-		locX += SPEED * dx;
-		locY += SPEED * dy;
-		// check for collisions with rocks
-		i = NetTankWar.hitAnItem(this, NetTankWar.rocks);
-		if (i >= 0) {
-			alive = false;
-			// Ask the game to deactivate this rock
-			NetTankWar.removeRock(i);
-		}
-		// check for collisions with tanks (other than
-		// our tank)
-		i = NetTankWar.hitAnItem(this, NetTankWar.tanks);
-		if ((i >= 0) && (i != tank)) {
-			alive = false;
-			// Tell game a tank was hit
-			NetTankWar.tankHit(i);
-		}
-	}
-
-	public double getX() {
-		return locX;
-	}
-
-	public double getY() {
-		return locY;
-	}
-
-	public double getRadius() {
-		return radius;
-	}
-
-	void setLocation(double x, double y) {
-		locX = x;
-		locY = y;
-	}
-
-	void setDirection(double angle) {
-		dx = Math.cos(Math.PI * angle / 180);
-		dy = Math.sin(Math.PI * angle / 180);
-	}
-
-	void render(GraphicsContext gc) {
-		if (alive) {
-			gc.setFill(Color.BLACK);
-			gc.fillOval(locX - radius, locY - radius, 2 * radius, 2 * radius);
-		}
-	}
-
-	public boolean isAlive() {
-		return alive;
-	}
-
-	void reset() {
-		ttl = LIFETIME;
-		alive = true;
-	}
 }
