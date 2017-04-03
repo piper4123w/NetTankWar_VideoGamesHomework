@@ -24,43 +24,39 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
+public class NetWarWatcher extends Thread {
+	private NetTankWar ntw; // ref back to client
+	private BufferedReader in;
 
-public class NetWarWatcher extends Thread
-{
-  private NetTankWar ntw;    // ref back to client
-  private BufferedReader in;
+	public NetWarWatcher(NetTankWar ntw, BufferedReader i) {
+		this.ntw = ntw;
+		in = i;
+	}
 
-  public NetWarWatcher(NetTankWar ntw, BufferedReader i)
-  {  this.ntw = ntw;
-     in = i;
-  }
-
-
-  public void run()
-  // Read server messages and act on them
-  {
-    String line;
-    try {
-      while ((line = in.readLine()) != null) {
-		  System.out.println("Watcher: player "+ntw.getPlayerID()+ " got "+line);
-        if (line.startsWith("begin")){
-          ntw.setPlayerID(0);
-          ntw.sendRocks();
+	public void run()
+	// Read server messages and act on them
+	{
+		String line;
+		try {
+			while ((line = in.readLine()) != null) {
+				System.out.println("Watcher: player " + ntw.getPlayerID() + " got " + line);
+				if (line.startsWith("begin")) {
+					ntw.setPlayerID(0);
+					ntw.sendRocks();
+				} else if (line.startsWith("rocks")) {
+					ntw.setPlayerID(1);
+					ntw.setRocks(line.substring(6));
+				} else if (line.startsWith("turn") || line.startsWith("forth"))
+					ntw.processMove(line);
+				else if (line.startsWith("Bullet"))
+					ntw.updateBulletLocations(line);
+				else // anything else
+					System.out.println("ERR: " + line + "\n");
+			}
+		} catch (Exception e) // socket closure will cause termination of while
+		{
+			System.out.println("NetWarWatcher: Socket closed");
 		}
-        else if (line.startsWith("rocks")){
-		  ntw.setPlayerID(1);
-          ntw.setRocks(line.substring(6));
-	    }
-        else if (line.startsWith("turn") || line.startsWith("forth"))
-          ntw.processMove(line);
-        else   // anything else
-          System.out.println("ERR: " + line + "\n");
-      }
-    }
-    catch(Exception e)    // socket closure will cause termination of while
-    { System.out.println("NetWarWatcher: Socket closed");
-    }
-  }  // end of run()
+	} // end of run()
 
-}  // end of NetWarWatcher
-
+} // end of NetWarWatcher

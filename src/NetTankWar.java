@@ -36,10 +36,10 @@ public class NetTankWar extends Application {
 	GraphicsContext gc; // declare here to use in handlers
 
 	Thread anim = null; // animation thread
-	
+
 	public static ArrayList<Rock> rocks; // obstacles on the field
 	public static ArrayList<Tank> tanks;
-	public static ArrayList<Ball> opponentBullets;
+	public static ArrayList<Bullet> bullets;
 	public static final int RED = 0;
 	public static final int BLUE = 1;
 
@@ -95,14 +95,10 @@ public class NetTankWar extends Application {
 		if (!roundOver) { // Freeze the action between rounds
 			tanks.get(playerID).update(true);
 			tanks.get(1 - playerID).update(false);
-
-			for (Tank t : tanks) {
-				for (int i = 0; i < t.bullets.length; i++) {
-					if (t.bullets[i].isAlive()) {
-						send("Bullet:" + i + "=" + t.bullets[i].locX + "," + t.bullets[i].locY);
-
-					}
-				}
+			
+			//TODO update all bullets here
+			for(int i = 0; i < tanks.get(playerID-1).MAXBULLETS; i++){
+				
 			}
 		}
 	}
@@ -347,10 +343,9 @@ public class NetTankWar extends Application {
 	 * ... End boiler-plate code
 	 */
 
-	public void setOpponentsBullets(String line) {
+	public void updateBulletLocations(String line) {
+		//TODO : make bullets communicate constantly between tanks
 		System.out.println(line);
-		int index = Integer.parseInt(line.substring(line.indexOf(':'), line.indexOf('=')));
-		System.out.println("BulletIndex = " + index);
 
 	}
 
