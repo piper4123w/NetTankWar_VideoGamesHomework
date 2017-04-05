@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.Scanner;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -65,5 +66,8 @@ class Rock implements Ball {
 			gc.fillOval(locX - radius, locY - radius, diameter, diameter);
 		}
 	}
-}
 
+	public void setAlive(boolean b) {
+		alive = b;
+	}
+}

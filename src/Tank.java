@@ -176,4 +176,10 @@ class Tank implements Ball {
 		locY -= speed * Math.sin(Math.PI * angle / 180);
 	}
 
+
+	public void registerHit(boolean alive) {
+		// TODO Auto-generated method stub
+		System.out.println("Player " + self + " registered a hit");
+	}
+
 }

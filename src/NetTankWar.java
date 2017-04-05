@@ -200,6 +200,21 @@ public class NetTankWar extends Application {
 		// Send command to tank not controlled by
 		// this player
 		tanks.get(1 - playerID).processMove(s);
+
+	}
+
+	public void processBulletMessage(String s) {
+		System.out.println(s);
+		String split[] = s.split(" ");
+		double x = Double.parseDouble(split[2]);
+		double y = Double.parseDouble(split[3]);
+		int i = Integer.parseInt(split[5]);
+		System.out.println(x + ',' + y + ':' + i);
+
+		if (s.contains("rock"))
+			rocks.remove(i);
+		else if (s.contains("tank"))
+			tanks.get(i).registerHit(Boolean.parseBoolean(split[1]));
 	}
 
 	public static int hitAnItem(Ball b, ArrayList<? extends Ball> c) {

@@ -46,10 +46,13 @@ public class NetWarWatcher extends Thread {
 				} else if (line.startsWith("rocks")) {
 					ntw.setPlayerID(1);
 					ntw.setRocks(line.substring(6));
-				} else if (line.startsWith("turn") || line.startsWith("forth") || line.startsWith("fire"))
-					ntw.processMove(line);	
-				else // anything else
+				} else if (line.startsWith("turn") || line.startsWith("forth") || line.startsWith("fire")) {
+					ntw.processMove(line);
+				} else if (line.startsWith("bullet")) {
+					ntw.processBulletMessage(line);
+				} else {// anything else
 					System.out.println("ERR: " + line + "\n");
+				}
 			}
 		} catch (Exception e) // socket closure will cause termination of while
 		{

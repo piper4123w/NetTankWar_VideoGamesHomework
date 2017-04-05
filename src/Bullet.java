@@ -29,6 +29,7 @@ class Bullet implements Ball {
 		i = NetTankWar.hitAnItem(this, NetTankWar.rocks);
 		if (i >= 0) {
 			alive = false;
+			NetTankWar.send("bullet " + alive + " " + locX + " " + locY + " rock: " + i);
 			// Ask the game to deactivate this rock
 			NetTankWar.removeRock(i);
 		}
@@ -38,6 +39,7 @@ class Bullet implements Ball {
 		if ((i >= 0) && (i != tank)) {
 			alive = false;
 			// Tell game a tank was hit
+			NetTankWar.send("bullet " + alive + " " + locX + " " + locY + " tank: " + i);
 			NetTankWar.tankHit(i);
 		}
 	}
