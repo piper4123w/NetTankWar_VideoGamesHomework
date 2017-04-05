@@ -25,6 +25,8 @@ import java.io.*;
  *
  * written by mike slattery - mar 2007
  * Ported to JavaFX - mcs, mar 2017
+ * 
+ * Modified by: Kyle Lawson and Cortney Connery
  */
 
 public class NetTankWar extends Application {

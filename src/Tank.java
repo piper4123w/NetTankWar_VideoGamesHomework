@@ -83,6 +83,8 @@ class Tank implements Ball {
 			}
 		}
 
+		if (count > 0)
+			count--;
 		// Update all of our bullets
 		for (Bullet b : bullets)
 			b.update();
@@ -130,7 +132,7 @@ class Tank implements Ball {
 
 	void fireBullet() {
 		// If it has been long enough since the last shot...
-		count--;
+
 		if (count > 0)
 			return;
 		// ...and if all the bullets aren't currently in use...
