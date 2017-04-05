@@ -46,10 +46,8 @@ public class NetWarWatcher extends Thread {
 				} else if (line.startsWith("rocks")) {
 					ntw.setPlayerID(1);
 					ntw.setRocks(line.substring(6));
-				} else if (line.startsWith("turn") || line.startsWith("forth"))
-					ntw.processMove(line);
-				else if (line.startsWith("Bullet"))
-					ntw.updateBulletLocations(line);
+				} else if (line.startsWith("turn") || line.startsWith("forth") || line.startsWith("fire"))
+					ntw.processMove(line);	
 				else // anything else
 					System.out.println("ERR: " + line + "\n");
 			}

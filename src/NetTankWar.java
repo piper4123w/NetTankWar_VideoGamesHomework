@@ -95,11 +95,7 @@ public class NetTankWar extends Application {
 		if (!roundOver) { // Freeze the action between rounds
 			tanks.get(playerID).update(true);
 			tanks.get(1 - playerID).update(false);
-			
-			//TODO update all bullets here
-			for(int i = 0; i < tanks.get(playerID-1).MAXBULLETS; i++){
-				
-			}
+
 		}
 	}
 
@@ -344,7 +340,7 @@ public class NetTankWar extends Application {
 	 */
 
 	public void updateBulletLocations(String line) {
-		//TODO : make bullets communicate constantly between tanks
+		// TODO : make bullets communicate constantly between tanks
 		System.out.println(line);
 
 	}

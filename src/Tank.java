@@ -10,7 +10,7 @@ class Tank implements Ball {
 	double locX, locY, radius, angle;
 	int self; // index of this tank in NetTankWar.tanks
 	public boolean turnL, turnR, forth, back, fire;
-	boolean prevtL, prevtR, prevfo;
+	boolean prevtL, prevtR, prevfo, prevFire;
 	Color color;
 	Image image;
 
@@ -61,6 +61,9 @@ class Tank implements Ball {
 			if (NetTankWar.hitAnItem(this, NetTankWar.rocks) >= 0)
 				backUp();
 		}
+		if (fire) {
+			fireBullet();
+		}
 		if (local) {
 			if (turnL != prevtL) {
 				NetTankWar.send("turnL " + turnL + " " + locX + " " + locY + " " + angle);
@@ -74,10 +77,12 @@ class Tank implements Ball {
 				NetTankWar.send("forth " + forth + " " + locX + " " + locY + " " + angle);
 				prevfo = forth;
 			}
+			if (fire != prevFire) {
+				NetTankWar.send("fire " + fire + " " + locX + " " + locY + " " + angle);
+				prevFire = fire;
+			}
 		}
-		if (fire) {
-			fireBullet();
-		}
+
 		// Update all of our bullets
 		for (Bullet b : bullets)
 			b.update();
@@ -95,6 +100,8 @@ class Tank implements Ball {
 			turnR = value;
 		else if (command.equals("forth"))
 			forth = value;
+		else if (command.equals("fire"))
+			fire = value;
 		else
 			System.out.println("Unexpected move: " + command);
 		// then unpack position update
