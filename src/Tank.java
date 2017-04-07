@@ -31,7 +31,7 @@ class Tank implements Ball {
 		radius = 22;
 		// create bullets for this tank
 		for (int i = 0; i < bullets.length; i++)
-			bullets[i] = new Bullet(self);
+			bullets[i] = new Bullet(self, i);
 	}
 
 	public double getX() {
@@ -176,10 +176,16 @@ class Tank implements Ball {
 		locY -= speed * Math.sin(Math.PI * angle / 180);
 	}
 
-
 	public void registerHit(boolean alive) {
 		// TODO Auto-generated method stub
 		System.out.println("Player " + self + " registered a hit");
+	}
+
+	public void setBulletAlive(int i, boolean b) {
+		System.out.println("bullet " + i + " is set to " + bullets[i].alive);
+		bullets[i].alive = b;
+		System.out.println("it is now " + bullets[i].alive);
+
 	}
 
 }

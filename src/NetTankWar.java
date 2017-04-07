@@ -206,15 +206,17 @@ public class NetTankWar extends Application {
 	public void processBulletMessage(String s) {
 		System.out.println(s);
 		String split[] = s.split(" ");
-		double x = Double.parseDouble(split[2]);
-		double y = Double.parseDouble(split[3]);
-		int i = Integer.parseInt(split[5]);
-		System.out.println(x + ',' + y + ':' + i);
+		int index = Integer.parseInt(split[1]);
+		double x = Double.parseDouble(split[3]);
+		double y = Double.parseDouble(split[4]);
+		int i = Integer.parseInt(split[6]);
+		System.out.println(x + "," + y + ":" + i);
+		tanks.get(1-playerID).setBulletAlive(index,false);
 
 		if (s.contains("rock"))
-			rocks.remove(i);
+			removeRock(i);
 		else if (s.contains("tank"))
-			tanks.get(i).registerHit(Boolean.parseBoolean(split[1]));
+			tanks.get(i).registerHit(Boolean.parseBoolean(split[2]));
 	}
 
 	public static int hitAnItem(Ball b, ArrayList<? extends Ball> c) {
