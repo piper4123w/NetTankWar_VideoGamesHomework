@@ -1,5 +1,6 @@
 import java.util.Random;
 import java.util.Scanner;
+import javafx.scene.image.Image;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -12,19 +13,22 @@ class Rock implements Ball {
 
 	int locX, locY, diameter, radius; // int properties easier to
 	boolean alive = true; // send over network
+	Image image;
 
-	public Rock(int x, int y, int minD, int maxD) {
+	public Rock(int x, int y, int minD, int maxD, Image im) {
 		locX = x;
 		locY = y;
 		diameter = minD + rockGen.nextInt(maxD - minD + 1);
 		radius = diameter / 2;
+		image = im; 
 	}
 
-	public Rock(int x, int y, int d) {
+	public Rock(int x, int y, int d, Image im) {
 		locX = x;
 		locY = y;
 		diameter = d;
 		radius = diameter / 2;
+		image = im;
 	}
 
 	void demolish() {
@@ -62,8 +66,7 @@ class Rock implements Ball {
 
 	void render(GraphicsContext gc) {
 		if (alive) {
-			gc.setFill(Color.GRAY);
-			gc.fillOval(locX - radius, locY - radius, diameter, diameter);
+			gc.drawImage(image,locX - radius, locY - radius, diameter, diameter);
 		}
 	}
 

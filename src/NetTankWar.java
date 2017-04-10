@@ -14,6 +14,7 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.transform.Affine;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.media.AudioClip;
 
 import java.util.*;
 import java.net.*;
@@ -26,7 +27,7 @@ import java.io.*;
  * written by mike slattery - mar 2007
  * Ported to JavaFX - mcs, mar 2017
  * 
- * Modified by: Kyle Lawson and Cortney Connery
+ * Modified by: Kyle Lawson and Courtney Connery
  */
 
 public class NetTankWar extends Application {
@@ -49,7 +50,9 @@ public class NetTankWar extends Application {
 
 	Image redtank;
 	Image bluetank;
-
+	static Image rock;
+	AudioClip bulletFired;
+	
 	static boolean roundOver = true;
 	static int loser;
 
@@ -67,7 +70,9 @@ public class NetTankWar extends Application {
 	public void initialize() {
 		redtank = new Image("redtank.png");
 		bluetank = new Image("bluetank.png");
-
+		rock = new Image("rock.png");
+		bulletFired = new AudioClip(ClassLoader.getSystemResource("BulletFired.wav").toString());
+		
 		makeContact();
 	}
 
@@ -162,7 +167,7 @@ public class NetTankWar extends Application {
 			ty = r * (Rock.rockGen.nextDouble() - 0.5);
 			x = (int) (x1 + s * (x2 - x1) + tx);
 			y = (int) (y1 + s * (y2 - y1) + ty);
-			rocks.add(new Rock(x, y, (int) (r / 2), (int) r));
+			rocks.add(new Rock(x, y, (int) (r / 2), (int) r, rock));
 		}
 
 	}
@@ -192,7 +197,7 @@ public class NetTankWar extends Application {
 			y = sc.nextInt();
 			d = sc.nextInt();
 			sc.close();
-			rocks.add(new Rock(x, y, d));
+			rocks.add(new Rock(x, y, d, rock));
 		}
 	}
 
@@ -248,7 +253,7 @@ public class NetTankWar extends Application {
 	public void render(GraphicsContext gc) {
 
 		// Draw a background
-		gc.setFill(Color.YELLOW);
+		gc.setFill(Color.GREEN);
 		gc.fillRect(0, 0, WIDTH, HEIGHT);
 
 		if (!ready) { // Just display the message and return
@@ -290,6 +295,7 @@ public class NetTankWar extends Application {
 				break;
 			case SPACE:
 				tanks.get(playerID).fire = true;
+				bulletFired.play();
 				break;
 			default:
 				break;
